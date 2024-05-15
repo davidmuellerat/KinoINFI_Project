@@ -17,7 +17,5 @@ public class User {
     public Object getPassword() {
         return password;
     }
-
-    // Konstruktoren, Getter und Setter
 }
 

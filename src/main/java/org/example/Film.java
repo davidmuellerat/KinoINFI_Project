@@ -14,5 +14,4 @@ public class Film {
     @DatabaseField
     private String description;
 
-    // Konstruktoren, Getter und Setter
 }
