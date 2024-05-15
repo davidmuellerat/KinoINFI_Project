@@ -7,4 +7,5 @@ Hauptziele:
 - Admin kann Buchungen löschen
 - User kann buchen/reservieren
 - Grafische Darstellung von Kinosaalplätze in Terminal
-
+- ORM Verwendung
+- Einlesen von Saalvergabe durch json 
