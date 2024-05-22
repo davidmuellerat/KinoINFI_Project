@@ -52,7 +52,7 @@ public class Main {
             System.out.println("4. Sitzplatzanzeige");
             System.out.println("5. Beenden");
             int choice = scanner.nextInt();
-            scanner.nextLine();  // Consume newline
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
