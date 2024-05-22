@@ -16,27 +16,74 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Willkommen zum Kino-Buchungs-Management-System");
+
+        try (ConnectionSource connectionSource = new JdbcConnectionSource(DATABASE_URL)) {
+            DatabaseManager.createTables(connectionSource);
+
+            while (true) {
+                System.out.println("1. Benutzer erstellen");
+                System.out.println("2. Login");
+                System.out.println("3. Beenden");
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (choice) {
+                    case 1:
+                        createUser(connectionSource);
+                        break;
+                    case 2:
+                        login(connectionSource);
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        System.out.println("Ungültige Auswahl. Bitte erneut versuchen.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void createUser(ConnectionSource connectionSource) {
+        try {
+            Dao<User, Integer> userDao = DaoManager.createDao(connectionSource, User.class);
+            System.out.print("Benutzername: ");
+            String username = scanner.nextLine();
+            System.out.print("Passwort: ");
+            String password = scanner.nextLine();
+            System.out.print("Ist Admin? (true/false): ");
+            boolean isAdmin = scanner.nextBoolean();
+            scanner.nextLine();
+
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setAdmin(isAdmin);
+
+            userDao.create(user);
+            System.out.println("Benutzer erfolgreich erstellt!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void login(ConnectionSource connectionSource) throws Exception {
         System.out.print("Benutzername: ");
         String username = scanner.nextLine();
         System.out.print("Passwort: ");
         String password = scanner.nextLine();
 
-        try (ConnectionSource connectionSource = new JdbcConnectionSource(DATABASE_URL)) {
-            DatabaseManager.createTables(connectionSource);
-
-            User user = Auth.authenticate(username, password, connectionSource);
-            if (user != null) {
-                System.out.println("Erfolgreich eingeloggt!");
-                if (user.isAdmin()) {
-                    adminMenu(connectionSource);
-                } else {
-                    userMenu(connectionSource, user);
-                }
+        User user = Auth.authenticate(username, password, connectionSource);
+        if (user != null) {
+            System.out.println("Erfolgreich eingeloggt!");
+            if (user.isAdmin()) {
+                adminMenu(connectionSource);
             } else {
-                System.out.println("Ungültiger Benutzername oder Passwort.");
+                userMenu(connectionSource, user);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
+            System.out.println("Ungültiger Benutzername oder Passwort.");
         }
     }
 
@@ -135,7 +182,8 @@ public class Main {
         }
     }
 
-    private static void createBooking(Dao<Booking, Integer> bookingDao, Dao<Film, Integer> filmDao, User user) throws Exception {
+    private static void createBooking(Dao<Booking, Integer> bookingDao, Dao<Film, Integer> filmDao, User user) throws
+            Exception {
         System.out.print("Film-ID: ");
         int filmId = scanner.nextInt();
         System.out.print("Sitzplatznummer: ");
@@ -178,7 +226,8 @@ public class Main {
         List<Film> films = filmDao.queryForAll();
         System.out.println("Verfügbare Filme:");
         for (Film film : films) {
-            System.out.println("ID: " + film.getId() + ", Titel: " + film.getTitle() + ", Beschreibung: " + film.getDescription());
+            System.out.println("ID: " + film.getId() + ", Titel: " + film.getTitle() + ", Beschreibung: " +
+                    film.getDescription());
         }
     }
 
@@ -186,7 +235,8 @@ public class Main {
         List<Booking> bookings = bookingDao.queryForAll();
         System.out.println("Bestehende Buchungen:");
         for (Booking booking : bookings) {
-            System.out.println("Buchung-ID: " + booking.getId() + ", Benutzer-ID: " + booking.getUser().getId() + ", Film-ID: " + booking.getFilm().getId() + ", Sitzplatznummer: " + booking.getSeatNumber());
+            System.out.println("Buchung-ID: " + booking.getId() + ", Benutzer-ID: " + booking.getUser().getId() +
+                    ", Film-ID: " + booking.getFilm().getId() + ", Sitzplatznummer: " + booking.getSeatNumber());
         }
     }
 
